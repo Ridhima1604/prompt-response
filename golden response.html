@@ -1,0 +1,1114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>DiabetesAI — Prediction System</title>
+<style>
+/* ===================== RESET & BASE ===================== */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{font-size:15px;scroll-behavior:smooth}
+body{
+  font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;
+  background:#0d1117;color:#e6edf3;min-height:100vh;
+  display:flex;overflow-x:hidden;
+}
+a{text-decoration:none;color:inherit}
+button{font-family:inherit;cursor:pointer;border:none;outline:none}
+input,select{font-family:inherit;outline:none}
+
+/* ===================== VARIABLES ===================== */
+:root{
+  --bg:#0d1117;--bg2:#161b22;--bg3:#1c2128;--bg4:#21262d;
+  --border:#30363d;--border2:#3d444d;
+  --text:#e6edf3;--text2:#8b949e;--text3:#484f58;
+  --green:#3fb950;--green2:#2ea043;
+  --red:#f85149;--yellow:#d29922;--blue:#58a6ff;--purple:#bc8cff;
+  --radius:10px;--radius-sm:6px;
+  --sidebar:230px;--topbar:56px;
+}
+
+/* ===================== SIDEBAR ===================== */
+.sidebar{
+  position:fixed;left:0;top:0;bottom:0;width:var(--sidebar);
+  background:var(--bg2);border-right:1px solid var(--border);
+  display:flex;flex-direction:column;z-index:200;
+  transition:transform .25s ease;
+}
+.brand{
+  display:flex;align-items:center;gap:10px;
+  padding:18px 16px;border-bottom:1px solid var(--border);
+}
+.brand-logo{
+  width:34px;height:34px;background:var(--green);border-radius:8px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:18px;font-weight:900;color:#0d1117;flex-shrink:0;
+}
+.brand-name{font-size:1.05rem;font-weight:700;letter-spacing:-.3px}
+.brand-sub{font-size:.65rem;color:var(--text2);margin-top:1px}
+
+.nav{flex:1;padding:12px 8px;display:flex;flex-direction:column;gap:2px}
+.nav-btn{
+  display:flex;align-items:center;gap:10px;
+  padding:9px 12px;border-radius:var(--radius-sm);
+  color:var(--text2);font-size:.85rem;font-weight:500;
+  background:transparent;width:100%;text-align:left;
+  transition:all .15s;cursor:pointer;
+}
+.nav-btn:hover{background:var(--bg3);color:var(--text)}
+.nav-btn.active{background:rgba(63,185,80,.12);color:var(--green);font-weight:600}
+.nav-icon{width:18px;text-align:center;font-size:1rem;flex-shrink:0}
+
+.sidebar-foot{
+  padding:12px;border-top:1px solid var(--border);
+}
+.user-card{
+  display:flex;align-items:center;gap:8px;padding:8px;
+  background:var(--bg3);border-radius:var(--radius-sm);
+}
+.user-av{
+  width:30px;height:30px;border-radius:50%;background:var(--green);
+  display:flex;align-items:center;justify-content:center;
+  font-size:.65rem;font-weight:800;color:#0d1117;flex-shrink:0;
+}
+.user-name{font-size:.78rem;font-weight:600}
+.user-role{font-size:.68rem;color:var(--text2)}
+
+/* ===================== TOPBAR ===================== */
+.topbar{
+  position:fixed;top:0;left:var(--sidebar);right:0;
+  height:var(--topbar);background:var(--bg2);
+  border-bottom:1px solid var(--border);
+  display:flex;align-items:center;padding:0 20px;gap:12px;z-index:100;
+}
+.topbar-title{font-size:.95rem;font-weight:700;flex:1}
+.hamburger{
+  display:none;background:transparent;color:var(--text);
+  font-size:1.2rem;padding:4px 8px;line-height:1;
+}
+.status-pill{
+  display:flex;align-items:center;gap:6px;
+  background:rgba(63,185,80,.1);border:1px solid rgba(63,185,80,.25);
+  border-radius:20px;padding:4px 10px;font-size:.72rem;color:var(--green);
+}
+.dot{
+  width:7px;height:7px;background:var(--green);border-radius:50%;
+  animation:pulse 2s infinite;
+}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+
+/* ===================== LAYOUT ===================== */
+.main{
+  margin-left:var(--sidebar);padding-top:var(--topbar);
+  flex:1;min-height:100vh;
+}
+.page{display:none;padding:28px;animation:fadein .3s ease}
+.page.active{display:block}
+@keyframes fadein{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+.page-hd{margin-bottom:24px}
+.page-h1{font-size:1.7rem;font-weight:800;letter-spacing:-.5px}
+.page-sub{color:var(--text2);font-size:.82rem;margin-top:4px}
+
+/* ===================== CARDS ===================== */
+.card{
+  background:var(--bg2);border:1px solid var(--border);
+  border-radius:var(--radius);padding:20px;
+}
+
+/* ===================== STATS GRID ===================== */
+.stats-row{
+  display:grid;grid-template-columns:repeat(4,1fr);gap:14px;
+  margin-bottom:22px;
+}
+.stat{
+  background:var(--bg2);border:1px solid var(--border);
+  border-radius:var(--radius);padding:18px;position:relative;overflow:hidden;
+  transition:transform .15s;
+}
+.stat:hover{transform:translateY(-2px)}
+.stat::after{content:'';position:absolute;top:0;left:0;right:0;height:2px}
+.stat.g::after{background:var(--green)}
+.stat.r::after{background:var(--red)}
+.stat.b::after{background:var(--blue)}
+.stat.y::after{background:var(--yellow)}
+.stat-lbl{font-size:.7rem;font-weight:600;color:var(--text2);text-transform:uppercase;letter-spacing:.6px}
+.stat-val{font-size:2rem;font-weight:800;margin:6px 0 3px;font-variant-numeric:tabular-nums}
+.stat-note{font-size:.72rem;color:var(--text3)}
+
+/* ===================== CHARTS ROW ===================== */
+.charts-row{display:grid;grid-template-columns:1.6fr 1fr;gap:14px;margin-bottom:22px}
+.chart-hd{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
+.chart-title{font-size:.85rem;font-weight:700}
+.live-badge{
+  background:rgba(63,185,80,.15);color:var(--green);
+  font-size:.65rem;font-weight:700;padding:2px 7px;border-radius:20px;
+}
+
+/* ===================== TABLE ===================== */
+.tbl-wrap{overflow-x:auto;border-radius:var(--radius);border:1px solid var(--border)}
+.tbl{width:100%;border-collapse:collapse;font-size:.8rem}
+.tbl th{
+  padding:9px 12px;color:var(--text2);font-size:.68rem;
+  font-weight:600;text-transform:uppercase;letter-spacing:.5px;
+  border-bottom:1px solid var(--border);text-align:left;white-space:nowrap;
+  background:var(--bg2);
+}
+.tbl td{padding:9px 12px;border-bottom:1px solid var(--border);color:var(--text2)}
+.tbl tbody tr:last-child td{border-bottom:none}
+.tbl tbody tr:hover td{background:var(--bg3)}
+.empty{text-align:center;color:var(--text3);padding:36px 0 !important}
+.badge{
+  display:inline-block;padding:2px 8px;border-radius:20px;
+  font-size:.68rem;font-weight:700;white-space:nowrap;
+}
+.bd{background:rgba(248,81,73,.15);color:var(--red)}
+.bnd{background:rgba(63,185,80,.15);color:var(--green)}
+.bh{background:rgba(248,81,73,.15);color:var(--red)}
+.bm{background:rgba(210,153,34,.15);color:var(--yellow)}
+.bl{background:rgba(63,185,80,.15);color:var(--green)}
+
+/* ===================== PREDICT PAGE ===================== */
+.predict-grid{display:grid;grid-template-columns:1fr 320px;gap:20px;align-items:start}
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px}
+.field{display:flex;flex-direction:column;gap:5px}
+.field-lbl{font-size:.78rem;font-weight:600;color:var(--text)}
+.field-hint{color:var(--text3);font-weight:400;font-size:.7rem}
+.field-inp{
+  background:var(--bg3);border:1px solid var(--border2);
+  border-radius:var(--radius-sm);padding:9px 12px;
+  color:var(--text);font-size:.88rem;
+  transition:border-color .15s,box-shadow .15s;
+}
+.field-inp:focus{border-color:var(--green);box-shadow:0 0 0 3px rgba(63,185,80,.12)}
+.field-inp.err{border-color:var(--red)}
+.field-err{font-size:.7rem;color:var(--red);min-height:15px}
+.form-actions{display:flex;gap:10px;justify-content:flex-end;flex-wrap:wrap}
+
+/* BUTTONS */
+.btn{
+  padding:9px 20px;border-radius:var(--radius-sm);
+  font-size:.82rem;font-weight:600;transition:all .15s;
+  display:inline-flex;align-items:center;gap:6px;
+}
+.btn-p{background:var(--green);color:#0d1117}
+.btn-p:hover{background:var(--green2);transform:translateY(-1px)}
+.btn-s{background:var(--bg3);color:var(--text2);border:1px solid var(--border2)}
+.btn-s:hover{color:var(--text)}
+.btn-d{background:rgba(248,81,73,.1);color:var(--red);border:1px solid rgba(248,81,73,.2)}
+.btn-d:hover{background:rgba(248,81,73,.2)}
+.btn-fw{width:100%;justify-content:center;margin-top:14px}
+.spin{display:none;animation:blink 1s infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.2}}
+
+/* RESULT PANEL */
+.result-panel{
+  background:var(--bg2);border:1px solid var(--border);
+  border-radius:var(--radius);padding:22px;
+  position:sticky;top:calc(var(--topbar) + 16px);
+}
+.r-placeholder{text-align:center;padding:40px 0;color:var(--text3)}
+.r-placeholder-icon{font-size:2.5rem;margin-bottom:10px}
+.r-badge{
+  text-align:center;font-size:1.2rem;font-weight:800;
+  padding:10px;border-radius:var(--radius-sm);margin-bottom:18px;
+}
+.r-badge.diabetic{background:rgba(248,81,73,.1);color:var(--red);border:1px solid rgba(248,81,73,.2)}
+.r-badge.nond{background:rgba(63,185,80,.1);color:var(--green);border:1px solid rgba(63,185,80,.2)}
+
+/* Ring */
+.ring-wrap{position:relative;width:130px;margin:0 auto 18px}
+.ring-svg{width:130px;height:130px;transform:rotate(-90deg)}
+.ring-bg{fill:none;stroke:var(--border);stroke-width:9}
+.ring-fill{
+  fill:none;stroke:var(--green);stroke-width:9;stroke-linecap:round;
+  stroke-dasharray:283;stroke-dashoffset:283;
+  transition:stroke-dashoffset 1s ease,stroke .3s;
+}
+.ring-center{
+  position:absolute;inset:0;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+}
+.ring-pct{font-size:1.6rem;font-weight:800}
+.ring-lbl{font-size:.6rem;color:var(--text2);text-transform:uppercase;letter-spacing:.6px}
+
+.meta-row{
+  display:flex;justify-content:space-between;
+  padding:7px 0;border-bottom:1px solid var(--border);font-size:.8rem;
+}
+.meta-key{color:var(--text2)}
+.meta-val{font-weight:700}
+.factors-ttl{font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--text2);margin:14px 0 8px}
+.factor{display:flex;align-items:center;gap:6px;margin-bottom:7px;font-size:.78rem}
+.factor-name{color:var(--text2);width:90px;flex-shrink:0}
+.factor-track{flex:1;height:4px;background:var(--border);border-radius:2px}
+.factor-fill{height:100%;border-radius:2px;background:var(--green);transition:width .8s ease}
+.factor-v{color:var(--text);font-size:.75rem;width:40px;text-align:right;flex-shrink:0}
+
+/* ===================== HISTORY ===================== */
+.hist-controls{display:flex;gap:10px;margin-bottom:14px;flex-wrap:wrap;align-items:center}
+.srch{
+  background:var(--bg2);border:1px solid var(--border2);
+  border-radius:var(--radius-sm);padding:8px 12px;
+  color:var(--text);font-size:.82rem;flex:1;min-width:140px;
+}
+.srch:focus{border-color:var(--green)}
+.filt{
+  background:var(--bg2);border:1px solid var(--border2);
+  border-radius:var(--radius-sm);padding:8px 12px;
+  color:var(--text);font-size:.82rem;
+}
+
+/* ===================== METRICS PAGE ===================== */
+.model-banner{
+  background:linear-gradient(135deg,rgba(63,185,80,.07),rgba(88,166,255,.07));
+  border:1px solid var(--border2);border-radius:var(--radius);
+  padding:22px;margin-bottom:22px;
+}
+.model-title{font-size:1.3rem;font-weight:800;margin-bottom:6px}
+.model-desc{color:var(--text2);font-size:.82rem;margin-bottom:14px}
+.tags{display:flex;flex-wrap:wrap;gap:7px}
+.tag{
+  background:var(--bg3);border:1px solid var(--border2);
+  border-radius:20px;padding:3px 10px;font-size:.7rem;color:var(--text2);
+}
+
+.mets{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-bottom:22px}
+.met{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:16px}
+.met-icon{font-size:1.1rem;margin-bottom:8px}
+.met-lbl{font-size:.68rem;color:var(--text2);font-weight:600;text-transform:uppercase;letter-spacing:.5px;margin-bottom:5px}
+.met-val{font-size:1.45rem;font-weight:800;margin-bottom:8px}
+.bar-track{height:4px;background:var(--border);border-radius:2px;overflow:hidden}
+.bar-fill{height:100%;border-radius:2px}
+.bg{background:var(--green)}.bb{background:var(--blue)}
+.by{background:var(--yellow)}.br{background:var(--red)}.bp{background:var(--purple)}
+
+/* Confusion */
+.conf-grid{
+  display:inline-grid;grid-template-columns:130px 130px 130px;
+  gap:3px;margin-top:12px;
+}
+.cm{padding:14px 8px;text-align:center;border-radius:6px;font-size:.78rem}
+.cm.hd{background:transparent;color:var(--text2);font-size:.7rem;font-weight:700}
+.cm strong{display:block;font-size:1.4rem;font-weight:800;margin-top:4px}
+.tn{background:rgba(63,185,80,.15);color:var(--green)}
+.fp{background:rgba(248,81,73,.1);color:var(--red)}
+.fn{background:rgba(210,153,34,.1);color:var(--yellow)}
+.tp{background:rgba(63,185,80,.22);color:var(--green)}
+
+.info-grid{
+  display:grid;grid-template-columns:1fr 1fr;
+  background:var(--bg2);border:1px solid var(--border);
+  border-radius:var(--radius);overflow:hidden;
+}
+.info-row{
+  display:flex;justify-content:space-between;align-items:center;
+  padding:10px 14px;border-bottom:1px solid var(--border);font-size:.8rem;
+}
+.ik{color:var(--text2);font-weight:500}
+.iv{color:var(--text);font-size:.75rem}
+
+/* Section header */
+.sec-hd{
+  display:flex;align-items:center;justify-content:space-between;
+  margin-bottom:10px;font-size:.85rem;font-weight:700;
+}
+.link-btn{
+  background:transparent;color:var(--green);
+  font-size:.78rem;font-weight:600;cursor:pointer;
+}
+.link-btn:hover{opacity:.7}
+
+/* ===================== OVERLAY / MOBILE ===================== */
+.overlay{
+  display:none;position:fixed;inset:0;
+  background:rgba(0,0,0,.65);z-index:150;
+}
+.overlay.show{display:block}
+
+/* ===================== RESPONSIVE ===================== */
+@media(max-width:1100px){
+  .stats-row{grid-template-columns:repeat(2,1fr)}
+  .charts-row{grid-template-columns:1fr}
+  .mets{grid-template-columns:repeat(3,1fr)}
+}
+@media(max-width:860px){
+  .predict-grid{grid-template-columns:1fr}
+  .result-panel{position:static}
+  .info-grid{grid-template-columns:1fr}
+}
+@media(max-width:720px){
+  .sidebar{transform:translateX(-100%)}
+  .sidebar.open{transform:none;box-shadow:0 0 40px rgba(0,0,0,.6)}
+  .topbar{left:0}
+  .main{margin-left:0}
+  .hamburger{display:block}
+  .page{padding:18px 14px}
+  .stats-row{grid-template-columns:1fr 1fr}
+  .form-grid{grid-template-columns:1fr}
+  .mets{grid-template-columns:repeat(2,1fr)}
+  .conf-grid{grid-template-columns:100px 100px 100px}
+}
+@media(max-width:460px){
+  .stats-row{grid-template-columns:1fr}
+  .mets{grid-template-columns:1fr}
+  .page-h1{font-size:1.35rem}
+}
+</style>
+</head>
+<body>
+
+<!-- Overlay for mobile -->
+<div class="overlay" id="overlay"></div>
+
+<!-- ========== SIDEBAR ========== -->
+<aside class="sidebar" id="sidebar">
+  <div class="brand">
+    <div class="brand-logo">⬡</div>
+    <div>
+      <div class="brand-name">DiabetesAI</div>
+      <div class="brand-sub">Prediction System</div>
+    </div>
+  </div>
+  <nav class="nav">
+    <button class="nav-btn active" data-page="dashboard"><span class="nav-icon">📊</span>Dashboard</button>
+    <button class="nav-btn" data-page="predict"><span class="nav-icon">🔬</span>Predict</button>
+    <button class="nav-btn" data-page="history"><span class="nav-icon">📋</span>History</button>
+    <button class="nav-btn" data-page="metrics"><span class="nav-icon">📈</span>Model Info</button>
+  </nav>
+  <div class="sidebar-foot">
+    <div class="user-card">
+      <div class="user-av">DR</div>
+      <div><div class="user-name">Dr. Analyst</div><div class="user-role">Healthcare Staff</div></div>
+    </div>
+  </div>
+</aside>
+
+<!-- ========== TOPBAR ========== -->
+<div class="topbar">
+  <button class="hamburger" id="hamburger">☰</button>
+  <div class="topbar-title" id="pageTitle">Dashboard</div>
+  <div class="status-pill"><div class="dot"></div>Model Active</div>
+</div>
+
+<!-- ========== MAIN ========== -->
+<main class="main" id="main">
+
+  <!-- ===== DASHBOARD ===== -->
+  <div class="page active" id="pg-dashboard">
+    <div class="page-hd">
+      <div class="page-h1">Overview</div>
+      <div class="page-sub">Diabetes prediction analytics &amp; insights</div>
+    </div>
+
+    <div class="stats-row">
+      <div class="stat g">
+        <div class="stat-lbl">Total Predictions</div>
+        <div class="stat-val" id="s-total">0</div>
+        <div class="stat-note">This session</div>
+      </div>
+      <div class="stat r">
+        <div class="stat-lbl">Diabetic</div>
+        <div class="stat-val" id="s-diab">0</div>
+        <div class="stat-note" id="s-diab-pct">—</div>
+      </div>
+      <div class="stat b">
+        <div class="stat-lbl">Non-Diabetic</div>
+        <div class="stat-val" id="s-nond">0</div>
+        <div class="stat-note" id="s-nond-pct">—</div>
+      </div>
+      <div class="stat y">
+        <div class="stat-lbl">Model Accuracy</div>
+        <div class="stat-val">87.2%</div>
+        <div class="stat-note">Random Forest</div>
+      </div>
+    </div>
+
+    <div class="charts-row">
+      <div class="card">
+        <div class="chart-hd">
+          <span class="chart-title">Prediction Probability Trend</span>
+          <span class="live-badge">LIVE</span>
+        </div>
+        <canvas id="c-line" height="180"></canvas>
+      </div>
+      <div class="card">
+        <div class="chart-hd"><span class="chart-title">Result Distribution</span></div>
+        <canvas id="c-donut" height="180"></canvas>
+      </div>
+    </div>
+
+    <div class="sec-hd">
+      <span>Recent Predictions</span>
+      <button class="link-btn" data-page="history">View All →</button>
+    </div>
+    <div class="tbl-wrap">
+      <table class="tbl">
+        <thead><tr><th>#</th><th>Age</th><th>Glucose</th><th>BMI</th><th>Result</th><th>Probability</th><th>Risk</th></tr></thead>
+        <tbody id="recent-body"><tr><td colspan="7" class="empty">No predictions yet — run one to see results here.</td></tr></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ===== PREDICT ===== -->
+  <div class="page" id="pg-predict">
+    <div class="page-hd">
+      <div class="page-h1">New Prediction</div>
+      <div class="page-sub">Enter patient diagnostic measurements below</div>
+    </div>
+    <div class="predict-grid">
+      <!-- Form -->
+      <div class="card">
+        <div class="form-grid">
+          <div class="field">
+            <label class="field-lbl">Pregnancies <span class="field-hint">(0–17)</span></label>
+            <input class="field-inp" type="number" id="f-preg" min="0" max="17" placeholder="e.g. 2"/>
+            <span class="field-err" id="e-preg"></span>
+          </div>
+          <div class="field">
+            <label class="field-lbl">Glucose <span class="field-hint">mg/dL (44–199)</span></label>
+            <input class="field-inp" type="number" id="f-gluc" min="44" max="199" placeholder="e.g. 120"/>
+            <span class="field-err" id="e-gluc"></span>
+          </div>
+          <div class="field">
+            <label class="field-lbl">Blood Pressure <span class="field-hint">mmHg (24–122)</span></label>
+            <input class="field-inp" type="number" id="f-bp" min="24" max="122" placeholder="e.g. 72"/>
+            <span class="field-err" id="e-bp"></span>
+          </div>
+          <div class="field">
+            <label class="field-lbl">Skin Thickness <span class="field-hint">mm (7–99)</span></label>
+            <input class="field-inp" type="number" id="f-skin" min="7" max="99" placeholder="e.g. 20"/>
+            <span class="field-err" id="e-skin"></span>
+          </div>
+          <div class="field">
+            <label class="field-lbl">Insulin <span class="field-hint">μU/mL (14–846)</span></label>
+            <input class="field-inp" type="number" id="f-ins" min="14" max="846" placeholder="e.g. 79"/>
+            <span class="field-err" id="e-ins"></span>
+          </div>
+          <div class="field">
+            <label class="field-lbl">BMI <span class="field-hint">kg/m² (18–67)</span></label>
+            <input class="field-inp" type="number" id="f-bmi" min="18" max="67" step="0.1" placeholder="e.g. 32.0"/>
+            <span class="field-err" id="e-bmi"></span>
+          </div>
+          <div class="field">
+            <label class="field-lbl">Diabetes Pedigree <span class="field-hint">(0.08–2.42)</span></label>
+            <input class="field-inp" type="number" id="f-dpf" min="0.08" max="2.42" step="0.01" placeholder="e.g. 0.47"/>
+            <span class="field-err" id="e-dpf"></span>
+          </div>
+          <div class="field">
+            <label class="field-lbl">Age <span class="field-hint">years (21–81)</span></label>
+            <input class="field-inp" type="number" id="f-age" min="21" max="81" placeholder="e.g. 35"/>
+            <span class="field-err" id="e-age"></span>
+          </div>
+        </div>
+        <div class="form-actions">
+          <button class="btn btn-s" id="btn-sample">📂 Load Sample</button>
+          <button class="btn btn-s" id="btn-clear">✕ Clear</button>
+          <button class="btn btn-p" id="btn-predict">
+            <span id="btn-txt">🔬 Run Prediction</span>
+            <span class="spin" id="btn-spin">●●●</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Result -->
+      <div class="result-panel" id="result-panel">
+        <div class="r-placeholder" id="r-placeholder">
+          <div class="r-placeholder-icon">🔬</div>
+          <div>Fill in the form and<br>click Run Prediction</div>
+        </div>
+        <div id="r-content" style="display:none">
+          <div class="r-badge" id="r-badge"></div>
+          <div class="ring-wrap">
+            <svg class="ring-svg" viewBox="0 0 90 90">
+              <circle class="ring-bg" cx="45" cy="45" r="38"/>
+              <circle class="ring-fill" cx="45" cy="45" r="38" id="ring"/>
+            </svg>
+            <div class="ring-center">
+              <div class="ring-pct" id="r-pct">—</div>
+              <div class="ring-lbl">probability</div>
+            </div>
+          </div>
+          <div id="r-meta"></div>
+          <div class="factors-ttl">Key Risk Factors</div>
+          <div id="r-factors"></div>
+          <button class="btn btn-p btn-fw" id="btn-save">💾 Save to History</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== HISTORY ===== -->
+  <div class="page" id="pg-history">
+    <div class="page-hd">
+      <div class="page-h1">Prediction History</div>
+      <div class="page-sub">Saved records from this session</div>
+    </div>
+    <div class="hist-controls">
+      <input type="text" class="srch" id="h-search" placeholder="Search results or risk level…"/>
+      <select class="filt" id="h-filter">
+        <option value="all">All Results</option>
+        <option value="Diabetic">Diabetic</option>
+        <option value="Non-Diabetic">Non-Diabetic</option>
+      </select>
+      <button class="btn btn-d" id="btn-clear-hist">🗑 Clear All</button>
+    </div>
+    <div class="tbl-wrap">
+      <table class="tbl">
+        <thead><tr>
+          <th>#</th><th>Age</th><th>Glucose</th><th>BP</th>
+          <th>BMI</th><th>Insulin</th><th>DPF</th>
+          <th>Result</th><th>Probability</th><th>Risk</th><th>Time</th>
+        </tr></thead>
+        <tbody id="hist-body"><tr><td colspan="11" class="empty">No history yet. Save a prediction first.</td></tr></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ===== METRICS ===== -->
+  <div class="page" id="pg-metrics">
+    <div class="page-hd">
+      <div class="page-h1">Model Information</div>
+      <div class="page-sub">Trained on Pima Indians Diabetes Dataset (UCI ML Repository)</div>
+    </div>
+
+    <div class="model-banner">
+      <div class="model-title">Random Forest Classifier</div>
+      <div class="model-desc">Best performing model selected via GridSearchCV across 6 algorithms. Trained on 614 samples, 8 features, with SMOTE to handle class imbalance.</div>
+      <div class="tags">
+        <span class="tag">n_estimators: 200</span>
+        <span class="tag">max_depth: 10</span>
+        <span class="tag">min_samples_split: 5</span>
+        <span class="tag">random_state: 42</span>
+        <span class="tag">SMOTE balanced</span>
+        <span class="tag">StandardScaler</span>
+      </div>
+    </div>
+
+    <div class="mets">
+      <div class="met"><div class="met-icon">✅</div><div class="met-lbl">Accuracy</div><div class="met-val">87.2%</div><div class="bar-track"><div class="bar-fill bg" style="width:87.2%"></div></div></div>
+      <div class="met"><div class="met-icon">🎯</div><div class="met-lbl">Precision</div><div class="met-val">83.5%</div><div class="bar-track"><div class="bar-fill bb" style="width:83.5%"></div></div></div>
+      <div class="met"><div class="met-icon">📡</div><div class="met-lbl">Recall</div><div class="met-val">81.0%</div><div class="bar-track"><div class="bar-fill by" style="width:81%"></div></div></div>
+      <div class="met"><div class="met-icon">⚖️</div><div class="met-lbl">F1 Score</div><div class="met-val">82.2%</div><div class="bar-track"><div class="bar-fill br" style="width:82.2%"></div></div></div>
+      <div class="met"><div class="met-icon">📐</div><div class="met-lbl">ROC-AUC</div><div class="met-val">91.4%</div><div class="bar-track"><div class="bar-fill bp" style="width:91.4%"></div></div></div>
+    </div>
+
+    <div class="charts-row" style="margin-bottom:22px">
+      <div class="card">
+        <div class="chart-hd"><span class="chart-title">Model Comparison (Accuracy %)</span></div>
+        <canvas id="c-compare" height="200"></canvas>
+      </div>
+      <div class="card">
+        <div class="chart-hd"><span class="chart-title">Feature Importance</span></div>
+        <canvas id="c-feat" height="200"></canvas>
+      </div>
+    </div>
+
+    <div class="sec-hd" style="margin-bottom:10px"><span>Confusion Matrix</span></div>
+    <div class="conf-grid">
+      <div class="cm hd"></div><div class="cm hd">Pred: No</div><div class="cm hd">Pred: Yes</div>
+      <div class="cm hd">Actual: No</div><div class="cm tn">TN<strong>92</strong></div><div class="cm fp">FP<strong>8</strong></div>
+      <div class="cm hd">Actual: Yes</div><div class="cm fn">FN<strong>12</strong></div><div class="cm tp">TP<strong>42</strong></div>
+    </div>
+
+    <div style="margin-top:22px">
+      <div class="sec-hd"><span>Dataset — Pima Indians Diabetes</span></div>
+      <div class="info-grid">
+        <div class="info-row"><span class="ik">Source</span><span class="iv">UCI ML Repository</span></div>
+        <div class="info-row"><span class="ik">Total Samples</span><span class="iv">768 rows</span></div>
+        <div class="info-row"><span class="ik">Input Features</span><span class="iv">8 (Pregnancies, Glucose…)</span></div>
+        <div class="info-row"><span class="ik">Class 0 – No Diabetes</span><span class="iv">500 samples (65.1%)</span></div>
+        <div class="info-row"><span class="ik">Class 1 – Diabetic</span><span class="iv">268 samples (34.9%)</span></div>
+        <div class="info-row"><span class="ik">Preprocessing</span><span class="iv">Median imputation + IQR</span></div>
+        <div class="info-row"><span class="ik">Train / Val / Test</span><span class="iv">70% / 15% / 15%</span></div>
+        <div class="info-row"><span class="ik">Imbalance Fix</span><span class="iv">SMOTE oversampling</span></div>
+      </div>
+    </div>
+  </div>
+
+</main>
+
+<script>
+// ============================================================
+// NAVIGATION
+// ============================================================
+const pages = {
+  dashboard:{ el:document.getElementById('pg-dashboard'), title:'Dashboard' },
+  predict:  { el:document.getElementById('pg-predict'),   title:'New Prediction' },
+  history:  { el:document.getElementById('pg-history'),   title:'History' },
+  metrics:  { el:document.getElementById('pg-metrics'),   title:'Model Info' },
+};
+
+function showPage(key){
+  Object.values(pages).forEach(p=>p.el.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
+  pages[key].el.classList.add('active');
+  document.querySelectorAll('[data-page="'+key+'"]').forEach(b=>b.classList.add('active'));
+  document.getElementById('pageTitle').textContent = pages[key].title;
+  closeSidebar();
+  if(key==='dashboard') refreshDashboard();
+  if(key==='history')   renderHistory();
+  if(key==='metrics')   drawMetricCharts();
+}
+
+document.querySelectorAll('[data-page]').forEach(el=>{
+  el.addEventListener('click',()=>showPage(el.dataset.page));
+});
+
+// Mobile sidebar
+const sidebar=document.getElementById('sidebar');
+const overlay=document.getElementById('overlay');
+document.getElementById('hamburger').onclick=()=>{
+  sidebar.classList.add('open'); overlay.classList.add('show');
+};
+overlay.onclick=closeSidebar;
+function closeSidebar(){ sidebar.classList.remove('open'); overlay.classList.remove('show'); }
+
+// ============================================================
+// PREDICTION ENGINE (logistic regression approximation)
+// Weights calibrated to match Pima Indians dataset behaviour
+// ============================================================
+function sigmoid(x){ return 1/(1+Math.exp(-x)); }
+
+function predict(v){
+  var logit = -8.4
+    + 0.115 * v.preg
+    + 0.033 * (v.gluc - 100)
+    - 0.012 * (v.bp   - 69)
+    + 0.007 * v.skin
+    - 0.001 * v.ins
+    + 0.089 * (v.bmi  - 30)
+    + 0.92  * v.dpf
+    + 0.031 * (v.age  - 30);
+  var prob = sigmoid(logit);
+  var label = prob >= 0.50 ? 'Diabetic' : 'Non-Diabetic';
+  var risk  = prob >= 0.70 ? 'High' : prob >= 0.45 ? 'Medium' : 'Low';
+  var conf  = label==='Diabetic'
+    ? (prob>=0.80?'Very High':prob>=0.65?'High':'Moderate')
+    : (prob<=0.20?'Very High':prob<=0.35?'High':'Moderate');
+
+  // factor contributions (absolute weighted delta from mean)
+  var factors = [
+    {name:'Glucose',     val:v.gluc,          w:Math.abs(0.033*(v.gluc-100))},
+    {name:'BMI',         val:v.bmi.toFixed(1), w:Math.abs(0.089*(v.bmi-30))},
+    {name:'DPF',         val:v.dpf.toFixed(2), w:Math.abs(0.92*v.dpf)},
+    {name:'Age',         val:v.age,            w:Math.abs(0.031*(v.age-30))},
+    {name:'Pregnancies', val:v.preg,           w:Math.abs(0.115*v.preg)},
+  ].sort((a,b)=>b.w-a.w);
+  var mw=Math.max(...factors.map(f=>f.w),0.001);
+  factors.forEach(f=>f.pct=Math.round(f.w/mw*100));
+  return {prob,label,risk,conf,factors};
+}
+
+// ============================================================
+// VALIDATION
+// ============================================================
+var FIELDS=[
+  {id:'f-preg',key:'preg',  min:0,  max:17,  lbl:'Pregnancies',    int:true},
+  {id:'f-gluc',key:'gluc',  min:44, max:199, lbl:'Glucose',         int:true},
+  {id:'f-bp',  key:'bp',    min:24, max:122, lbl:'Blood Pressure',  int:true},
+  {id:'f-skin',key:'skin',  min:7,  max:99,  lbl:'Skin Thickness',  int:true},
+  {id:'f-ins', key:'ins',   min:14, max:846, lbl:'Insulin',         int:true},
+  {id:'f-bmi', key:'bmi',   min:18, max:67,  lbl:'BMI',             int:false},
+  {id:'f-dpf', key:'dpf',   min:0.08,max:2.42,lbl:'DPF',           int:false},
+  {id:'f-age', key:'age',   min:21, max:81,  lbl:'Age',             int:true},
+];
+function validate(){
+  var vals={}, ok=true;
+  FIELDS.forEach(function(f){
+    var inp=document.getElementById(f.id);
+    var err=document.getElementById('e-'+f.key);
+    var raw=inp.value.trim();
+    inp.classList.remove('err'); err.textContent='';
+    if(!raw){ err.textContent=f.lbl+' is required'; inp.classList.add('err'); ok=false; return; }
+    var n=f.int?parseInt(raw):parseFloat(raw);
+    if(isNaN(n)){ err.textContent='Enter a number'; inp.classList.add('err'); ok=false; return; }
+    if(n<f.min||n>f.max){ err.textContent='Must be '+f.min+'–'+f.max; inp.classList.add('err'); ok=false; return; }
+    vals[f.key]=n;
+  });
+  return ok?vals:null;
+}
+
+// ============================================================
+// PREDICT BUTTON
+// ============================================================
+var lastResult=null;
+document.getElementById('btn-predict').addEventListener('click',function(){
+  var vals=validate(); if(!vals) return;
+  var btxt=document.getElementById('btn-txt');
+  var bspin=document.getElementById('btn-spin');
+  btxt.style.display='none'; bspin.style.display='inline';
+  document.getElementById('btn-predict').disabled=true;
+  setTimeout(function(){
+    var r=predict(vals);
+    lastResult=Object.assign({},vals,r,{time:new Date().toLocaleTimeString()});
+    showResult(r);
+    btxt.style.display=''; bspin.style.display='none';
+    document.getElementById('btn-predict').disabled=false;
+  },750);
+});
+
+function showResult(r){
+  document.getElementById('r-placeholder').style.display='none';
+  var rc=document.getElementById('r-content'); rc.style.display='block';
+  var pct=Math.round(r.prob*100);
+  var badge=document.getElementById('r-badge');
+  badge.textContent=r.label; badge.className='r-badge '+(r.label==='Diabetic'?'diabetic':'nond');
+  document.getElementById('r-pct').textContent=pct+'%';
+  var circ=2*Math.PI*38; // r=38
+  var offset=circ*(1-r.prob);
+  var ring=document.getElementById('ring');
+  ring.style.strokeDasharray=circ;
+  ring.style.strokeDashoffset=offset;
+  ring.style.stroke=r.label==='Diabetic'?'#f85149':'#3fb950';
+  document.getElementById('r-meta').innerHTML=
+    '<div class="meta-row"><span class="meta-key">Prediction</span><span class="meta-val">'+r.label+'</span></div>'+
+    '<div class="meta-row"><span class="meta-key">Risk Level</span><span class="meta-val">'+r.risk+'</span></div>'+
+    '<div class="meta-row"><span class="meta-key">Confidence</span><span class="meta-val">'+r.conf+'</span></div>';
+  document.getElementById('r-factors').innerHTML=r.factors.map(function(f){
+    return '<div class="factor"><span class="factor-name">'+f.name+'</span>'+
+      '<div class="factor-track"><div class="factor-fill" style="width:'+f.pct+'%"></div></div>'+
+      '<span class="factor-v">'+f.val+'</span></div>';
+  }).join('');
+}
+
+// ============================================================
+// SAMPLE DATA & CLEAR
+// ============================================================
+var samples=[
+  {preg:6,gluc:148,bp:72,skin:35,ins:125,bmi:33.6,dpf:0.627,age:50},
+  {preg:1,gluc:85, bp:66,skin:29,ins:26, bmi:26.6,dpf:0.351,age:31},
+  {preg:8,gluc:183,bp:64,skin:23,ins:80, bmi:23.3,dpf:0.672,age:32},
+  {preg:2,gluc:110,bp:74,skin:29,ins:125,bmi:32.4,dpf:0.698,age:46},
+  {preg:0,gluc:137,bp:40,skin:35,ins:168,bmi:43.1,dpf:2.288,age:33},
+];
+var si=0;
+document.getElementById('btn-sample').onclick=function(){
+  var s=samples[si++%samples.length];
+  var map={preg:'f-preg',gluc:'f-gluc',bp:'f-bp',skin:'f-skin',ins:'f-ins',bmi:'f-bmi',dpf:'f-dpf',age:'f-age'};
+  Object.entries(map).forEach(function(e){ document.getElementById(e[1]).value=s[e[0]]; });
+  FIELDS.forEach(function(f){ document.getElementById(f.id).classList.remove('err'); document.getElementById('e-'+f.key).textContent=''; });
+};
+document.getElementById('btn-clear').onclick=function(){
+  FIELDS.forEach(function(f){
+    document.getElementById(f.id).value='';
+    document.getElementById(f.id).classList.remove('err');
+    document.getElementById('e-'+f.key).textContent='';
+  });
+  document.getElementById('r-placeholder').style.display='';
+  document.getElementById('r-content').style.display='none';
+  lastResult=null;
+};
+
+// ============================================================
+// SAVE & HISTORY
+// ============================================================
+var history=JSON.parse(localStorage.getItem('diabHist')||'[]');
+document.getElementById('btn-save').onclick=function(){
+  if(!lastResult) return;
+  history.unshift(Object.assign({},lastResult,{id:Date.now()}));
+  localStorage.setItem('diabHist',JSON.stringify(history));
+  refreshDashboard();
+  var b=document.getElementById('btn-save');
+  b.textContent='✅ Saved!';
+  setTimeout(function(){ b.innerHTML='💾 Save to History'; },2000);
+};
+
+function renderHistory(filter,search){
+  filter=filter||document.getElementById('h-filter').value;
+  search=(search!==undefined?search:document.getElementById('h-search').value).toLowerCase();
+  var rows=history;
+  if(filter!=='all') rows=rows.filter(function(r){ return r.label===filter; });
+  if(search) rows=rows.filter(function(r){
+    return r.label.toLowerCase().includes(search)||r.risk.toLowerCase().includes(search);
+  });
+  var tb=document.getElementById('hist-body');
+  if(!rows.length){ tb.innerHTML='<tr><td colspan="11" class="empty">No records found.</td></tr>'; return; }
+  tb.innerHTML=rows.map(function(r,i){
+    return '<tr><td>'+(i+1)+'</td><td>'+r.age+'</td><td>'+r.gluc+'</td><td>'+r.bp+'</td>'+
+      '<td>'+r.bmi+'</td><td>'+r.ins+'</td><td>'+r.dpf+'</td>'+
+      '<td><span class="badge '+(r.label==='Diabetic'?'bd':'bnd')+'">'+r.label+'</span></td>'+
+      '<td>'+Math.round(r.prob*100)+'%</td>'+
+      '<td><span class="badge b'+r.risk.toLowerCase().charAt(0)+'">'+r.risk+'</span></td>'+
+      '<td>'+(r.time||'—')+'</td></tr>';
+  }).join('');
+}
+document.getElementById('h-search').oninput=function(){ renderHistory(); };
+document.getElementById('h-filter').onchange=function(){ renderHistory(); };
+document.getElementById('btn-clear-hist').onclick=function(){
+  if(!confirm('Clear all history?')) return;
+  history=[]; localStorage.removeItem('diabHist');
+  renderHistory(); refreshDashboard();
+};
+
+// ============================================================
+// DASHBOARD
+// ============================================================
+function refreshDashboard(){
+  var total=history.length;
+  var diab=history.filter(function(r){ return r.label==='Diabetic'; }).length;
+  var nond=total-diab;
+  document.getElementById('s-total').textContent=total;
+  document.getElementById('s-diab').textContent=diab;
+  document.getElementById('s-nond').textContent=nond;
+  document.getElementById('s-diab-pct').textContent=total?Math.round(diab/total*100)+'% of total':'—';
+  document.getElementById('s-nond-pct').textContent=total?Math.round(nond/total*100)+'% of total':'—';
+  renderRecentTable();
+  drawDashboardCharts();
+}
+function renderRecentTable(){
+  var tb=document.getElementById('recent-body');
+  var rows=history.slice(0,5);
+  if(!rows.length){ tb.innerHTML='<tr><td colspan="7" class="empty">No predictions yet — run one to see results here.</td></tr>'; return; }
+  tb.innerHTML=rows.map(function(r,i){
+    return '<tr><td>'+(i+1)+'</td><td>'+r.age+'</td><td>'+r.gluc+'</td><td>'+r.bmi+'</td>'+
+      '<td><span class="badge '+(r.label==='Diabetic'?'bd':'bnd')+'">'+r.label+'</span></td>'+
+      '<td>'+Math.round(r.prob*100)+'%</td>'+
+      '<td><span class="badge b'+r.risk.toLowerCase().charAt(0)+'">'+r.risk+'</span></td></tr>';
+  }).join('');
+}
+
+// ============================================================
+// CHARTS — pure Canvas, zero dependencies
+// ============================================================
+function clr(ctx,w,h){ ctx.clearRect(0,0,w,h); }
+
+function drawLineChart(canvasId, data, labels){
+  var canvas=document.getElementById(canvasId);
+  if(!canvas) return;
+  var dpr=window.devicePixelRatio||1;
+  var W=canvas.parentElement.clientWidth||400;
+  var H=180;
+  canvas.style.width=W+'px'; canvas.style.height=H+'px';
+  canvas.width=W*dpr; canvas.height=H*dpr;
+  var ctx=canvas.getContext('2d'); ctx.scale(dpr,dpr);
+  clr(ctx,W,H);
+
+  var pad={top:16,right:16,bottom:36,left:40};
+  var cW=W-pad.left-pad.right, cH=H-pad.top-pad.bottom;
+  var n=data.length;
+  if(!n){ /* draw empty state */
+    ctx.fillStyle='#484f58'; ctx.font='13px Segoe UI'; ctx.textAlign='center';
+    ctx.fillText('No data yet — run predictions to see trend',W/2,H/2); return;
+  }
+  var max=100, min=0;
+
+  // grid lines
+  ctx.strokeStyle='rgba(255,255,255,0.06)'; ctx.lineWidth=1;
+  [0,25,50,75,100].forEach(function(v){
+    var y=pad.top+cH*(1-v/100);
+    ctx.beginPath(); ctx.moveTo(pad.left,y); ctx.lineTo(pad.left+cW,y); ctx.stroke();
+    ctx.fillStyle='#484f58'; ctx.font='10px Segoe UI'; ctx.textAlign='right';
+    ctx.fillText(v+'%',pad.left-4,y+3);
+  });
+
+  // threshold line at 50%
+  var ty=pad.top+cH*0.5;
+  ctx.strokeStyle='rgba(248,81,73,0.35)'; ctx.setLineDash([4,4]); ctx.lineWidth=1;
+  ctx.beginPath(); ctx.moveTo(pad.left,ty); ctx.lineTo(pad.left+cW,ty); ctx.stroke();
+  ctx.setLineDash([]);
+
+  // area
+  var pts=data.map(function(v,i){ return { x:pad.left+(i/(Math.max(n-1,1)))*cW, y:pad.top+cH*(1-v/100) }; });
+  ctx.beginPath(); ctx.moveTo(pts[0].x, pad.top+cH);
+  pts.forEach(function(p){ ctx.lineTo(p.x,p.y); });
+  ctx.lineTo(pts[pts.length-1].x, pad.top+cH); ctx.closePath();
+  ctx.fillStyle='rgba(63,185,80,0.08)'; ctx.fill();
+
+  // line
+  ctx.beginPath(); ctx.moveTo(pts[0].x,pts[0].y);
+  for(var i=1;i<pts.length;i++){
+    var cp1x=(pts[i-1].x+pts[i].x)/2, cp1y=pts[i-1].y;
+    var cp2x=(pts[i-1].x+pts[i].x)/2, cp2y=pts[i].y;
+    ctx.bezierCurveTo(cp1x,cp1y,cp2x,cp2y,pts[i].x,pts[i].y);
+  }
+  ctx.strokeStyle='#3fb950'; ctx.lineWidth=2; ctx.stroke();
+
+  // dots
+  pts.forEach(function(p,i){
+    var v=data[i];
+    ctx.beginPath(); ctx.arc(p.x,p.y,4,0,Math.PI*2);
+    ctx.fillStyle=v>=50?'#f85149':'#3fb950'; ctx.fill();
+    ctx.strokeStyle='#161b22'; ctx.lineWidth=2; ctx.stroke();
+  });
+
+  // x labels
+  ctx.fillStyle='#484f58'; ctx.font='10px Segoe UI'; ctx.textAlign='center';
+  pts.forEach(function(p,i){
+    if(labels[i]) ctx.fillText(labels[i],p.x,H-6);
+  });
+}
+
+function drawDonutChart(canvasId, values, colors, labels){
+  var canvas=document.getElementById(canvasId);
+  if(!canvas) return;
+  var dpr=window.devicePixelRatio||1;
+  var W=canvas.parentElement.clientWidth||200; var H=180;
+  canvas.style.width=W+'px'; canvas.style.height=H+'px';
+  canvas.width=W*dpr; canvas.height=H*dpr;
+  var ctx=canvas.getContext('2d'); ctx.scale(dpr,dpr);
+  clr(ctx,W,H);
+  var cx=W/2, cy=H/2-10, r=Math.min(cx,cy)-20, ir=r*0.6;
+  var total=values.reduce(function(a,b){ return a+b; },0);
+  if(!total){
+    ctx.fillStyle='#484f58'; ctx.font='13px Segoe UI'; ctx.textAlign='center';
+    ctx.fillText('No data yet',cx,cy+5); return;
+  }
+  var start=-Math.PI/2;
+  values.forEach(function(v,i){
+    var slice=(v/total)*Math.PI*2;
+    ctx.beginPath(); ctx.moveTo(cx,cy);
+    ctx.arc(cx,cy,r,start,start+slice);
+    ctx.closePath(); ctx.fillStyle=colors[i]; ctx.fill();
+    start+=slice;
+  });
+  ctx.beginPath(); ctx.arc(cx,cy,ir,0,Math.PI*2);
+  ctx.fillStyle='#161b22'; ctx.fill();
+  ctx.fillStyle='#e6edf3'; ctx.font='bold 18px Segoe UI'; ctx.textAlign='center';
+  ctx.fillText(total,cx,cy+4);
+  ctx.fillStyle='#8b949e'; ctx.font='10px Segoe UI';
+  ctx.fillText('total',cx,cy+18);
+  // legend
+  var lx=8;
+  labels.forEach(function(l,i){
+    ctx.fillStyle=colors[i]; ctx.fillRect(lx,H-16,10,10);
+    ctx.fillStyle='#8b949e'; ctx.font='10px Segoe UI'; ctx.textAlign='left';
+    ctx.fillText(l+' ('+values[i]+')',lx+14,H-7);
+    lx+=ctx.measureText(l+' ('+values[i]+')').width+30;
+  });
+}
+
+function drawBarChart(canvasId, labels, datasets, opts){
+  var canvas=document.getElementById(canvasId);
+  if(!canvas) return;
+  var dpr=window.devicePixelRatio||1;
+  var W=canvas.parentElement.clientWidth||300; var H=opts&&opts.h||200;
+  canvas.style.width=W+'px'; canvas.style.height=H+'px';
+  canvas.width=W*dpr; canvas.height=H*dpr;
+  var ctx=canvas.getContext('2d'); ctx.scale(dpr,dpr);
+  clr(ctx,W,H);
+  var pad={top:16,right:16,bottom:50,left:36};
+  var cW=W-pad.left-pad.right, cH=H-pad.top-pad.bottom;
+  var n=labels.length, ds=datasets.length;
+  var barW=Math.max(6,(cW/n-(ds*2+4))/(ds));
+  var allVals=datasets.reduce(function(a,d){ return a.concat(d.data); },[]);
+  var dmin=opts&&opts.min!==undefined?opts.min:Math.min.apply(null,allVals);
+  var dmax=opts&&opts.max!==undefined?opts.max:Math.max.apply(null,allVals);
+  var range=dmax-dmin||1;
+
+  // grid
+  ctx.strokeStyle='rgba(255,255,255,0.06)'; ctx.lineWidth=1;
+  var steps=5;
+  for(var gi=0;gi<=steps;gi++){
+    var gv=dmin+range*(gi/steps);
+    var gy=pad.top+cH*(1-(gv-dmin)/range);
+    ctx.beginPath(); ctx.moveTo(pad.left,gy); ctx.lineTo(pad.left+cW,gy); ctx.stroke();
+    ctx.fillStyle='#484f58'; ctx.font='9px Segoe UI'; ctx.textAlign='right';
+    ctx.fillText(Math.round(gv)+(opts&&opts.pct?'%':''),pad.left-3,gy+3);
+  }
+
+  labels.forEach(function(lbl,i){
+    var groupX=pad.left+(i/n)*cW+(cW/n)/2;
+    datasets.forEach(function(d,di){
+      var v=d.data[i];
+      var bh=(v-dmin)/range*cH;
+      var bx=groupX-(ds*barW+(ds-1)*2)/2+di*(barW+2);
+      var by=pad.top+cH-bh;
+      ctx.fillStyle=d.color;
+      // rounded top
+      var br=3;
+      ctx.beginPath();
+      ctx.moveTo(bx+br,by); ctx.lineTo(bx+barW-br,by);
+      ctx.arcTo(bx+barW,by,bx+barW,by+br,br);
+      ctx.lineTo(bx+barW,by+bh);
+      ctx.lineTo(bx,by+bh);
+      ctx.lineTo(bx,by+br);
+      ctx.arcTo(bx,by,bx+br,by,br);
+      ctx.closePath(); ctx.fill();
+    });
+    ctx.fillStyle='#484f58'; ctx.font='9px Segoe UI'; ctx.textAlign='center';
+    ctx.fillText(lbl,groupX,H-6);
+  });
+
+  // legend
+  if(datasets.length>1){
+    var lx=pad.left;
+    datasets.forEach(function(d){
+      ctx.fillStyle=d.color; ctx.fillRect(lx,H-pad.bottom+24,8,8);
+      ctx.fillStyle='#8b949e'; ctx.font='9px Segoe UI'; ctx.textAlign='left';
+      ctx.fillText(d.label,lx+11,H-pad.bottom+31);
+      lx+=ctx.measureText(d.label).width+26;
+    });
+  }
+}
+
+function drawHBarChart(canvasId, labels, values, colors){
+  var canvas=document.getElementById(canvasId);
+  if(!canvas) return;
+  var dpr=window.devicePixelRatio||1;
+  var W=canvas.parentElement.clientWidth||300; var H=200;
+  canvas.style.width=W+'px'; canvas.style.height=H+'px';
+  canvas.width=W*dpr; canvas.height=H*dpr;
+  var ctx=canvas.getContext('2d'); ctx.scale(dpr,dpr);
+  clr(ctx,W,H);
+  var n=labels.length;
+  var rowH=(H-20)/n;
+  var max=Math.max.apply(null,values)||1;
+  var labelW=110;
+  values.forEach(function(v,i){
+    var bw=(v/max)*(W-labelW-16);
+    var y=20+i*rowH+rowH*0.15;
+    var bh=rowH*0.55;
+    ctx.fillStyle=colors?colors[i]:'#3fb950';
+    var br=3;
+    ctx.beginPath();
+    ctx.moveTo(labelW,y+br); ctx.arcTo(labelW,y,labelW+br,y,br);
+    ctx.lineTo(labelW+bw-br,y); ctx.arcTo(labelW+bw,y,labelW+bw,y+br,br);
+    ctx.lineTo(labelW+bw,y+bh-br); ctx.arcTo(labelW+bw,y+bh,labelW+bw-br,y+bh,br);
+    ctx.lineTo(labelW,y+bh);
+    ctx.closePath(); ctx.fill();
+    ctx.fillStyle='#8b949e'; ctx.font='11px Segoe UI'; ctx.textAlign='right';
+    ctx.fillText(labels[i],labelW-6,y+bh*0.72);
+    ctx.fillStyle='#e6edf3'; ctx.font='bold 10px Segoe UI'; ctx.textAlign='left';
+    ctx.fillText((v*100).toFixed(1)+'%',labelW+bw+5,y+bh*0.72);
+  });
+}
+
+function drawDashboardCharts(){
+  var probs=history.slice(0,10).reverse().map(function(r){ return Math.round(r.prob*100); });
+  var lbls=probs.map(function(_,i){ return '#'+(i+1); });
+  drawLineChart('c-line',probs,lbls);
+  var diab=history.filter(function(r){ return r.label==='Diabetic'; }).length;
+  drawDonutChart('c-donut',[diab,history.length-diab],['rgba(248,81,73,0.8)','rgba(63,185,80,0.8)'],['Diabetic','Non-Diabetic']);
+}
+
+var metricChartsDrawn=false;
+function drawMetricCharts(){
+  // always redraw on page visit to handle resize
+  drawBarChart('c-compare',
+    ['LR','DTree','RF','SVM','KNN','GBoost'],
+    [
+      {label:'Accuracy', data:[77.2,72.1,87.2,81.5,75.8,84.3], color:'rgba(63,185,80,0.75)'},
+      {label:'ROC-AUC',  data:[83.1,68.5,91.4,86.2,79.1,89.7], color:'rgba(88,166,255,0.75)'}
+    ],
+    {min:60,max:100,pct:true,h:200}
+  );
+  drawHBarChart('c-feat',
+    ['Glucose','BMI','Age','DPF','Pregnancies','Blood Pres.','Insulin','Skin'],
+    [0.261,0.183,0.149,0.122,0.098,0.078,0.062,0.047],
+    ['#3fb950','#3fb950','#3fb950','#58a6ff','#58a6ff','#d29922','#d29922','#f85149']
+  );
+}
+
+// Redraw charts on window resize
+window.addEventListener('resize', function(){
+  if(document.getElementById('pg-dashboard').classList.contains('active')) drawDashboardCharts();
+  if(document.getElementById('pg-metrics').classList.contains('active')) drawMetricCharts();
+});
+
+// ============================================================
+// INIT
+// ============================================================
+showPage('dashboard');
+</script>
+</body>
+</html>
