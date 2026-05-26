@@ -1,393 +1,416 @@
 
-#  Diabetes Prediction System
+# User Management System
 
-A complete end-to-end **Machine Learning + FastAPI + Frontend Dashboard** project that predicts whether a patient is diabetic using the **Pima Indians Diabetes Dataset**.
+A complete end-to-end **MERN Stack (MongoDB + Express + React + Node.js)** project that manages users with secure authentication and role-based access control using **JWT Authentication**.
 
-This system is built for doctors, students, and healthcare staff to quickly assess diabetes risk based on patient health measurements, view prediction history, and analyze model performance through interactive dashboards.
+This system is built for organizations and teams to manage user accounts, roles, permissions, activity tracking, and secure access through a responsive dashboard.
 
 ---
 
-## deployed link
-https://stupendous-hotteok-4b75eb.netlify.app/
+## Deployed Link
 
-##  Features
+https://usermgmtsystem-4.onrender.com/login
+---
 
-###  Machine Learning Pipeline
-- Data cleaning and preprocessing
-- Exploratory Data Analysis (EDA)
-- Feature scaling and engineering
-- Multiple ML model training
-- Hyperparameter tuning
-- Best model selection and saving
+## Features
 
-###  Prediction API
-- REST API using **FastAPI / Flask**
-- Predict diabetes from user input
-- Returns prediction + probability + risk level
-- JWT authentication
-- Model metrics endpoints
-- Prediction history API
+### Authentication & Security
+- JWT-based authentication
+- Secure login system
+- Password hashing using bcrypt
+- Protected API routes
+- Role-based authorization
+- Token persistence
+- Logout functionality
 
-###  Frontend Dashboard
-- Login / Register pages
-- Diabetes prediction form
-- Model metrics dashboard
-- Prediction history
-- Risk trend charts
-- Responsive UI for mobile + desktop
+### Role-Based Access Control (RBAC)
+- Admin role
+- User role
+- Backend route protection
+- Frontend role-based navigation
+- Restrict access by permissions
+- Extendable role system
 
-###  Database Integration
-- Store users
-- Store predictions
-- Track model versions and logs
+### User Management
+- View users
+- Search users
+- Filter users by role/status
+- Create new user
+- Update user
+- Delete / deactivate user
+- View individual user profile
+- Update own profile
 
-###  Deployment Ready
+### Frontend Dashboard
+- Login page
+- Dashboard
+- User list
+- User details
+- Profile page
+- Role-based sidebar
+- Responsive UI
+
+### Audit & Activity Tracking
+- createdAt
+- updatedAt
+- createdBy
+- updatedBy
+- User activity details
+
+### Deployment Ready
 - Localhost
+- Render
+- Vercel
+- Railway
 - Docker
-- Render / Railway / Vercel
 
 ---
 
-#  Dataset
+# Dataset / Database
 
-Dataset used: **Pima Indians Diabetes Dataset**
-
-### Input Features
-
-- Pregnancies
-- Glucose
-- Blood Pressure
-- Skin Thickness
-- Insulin
-- BMI
-- Diabetes Pedigree Function
-- Age
-
-### Target
-
-- **0 → Non-Diabetic**
-- **1 → Diabetic**
+Database used: **MongoDB**
 
 ---
 
-#  Data Preprocessing
+# User Roles
 
-### Data Cleaning
-- Replace invalid zero values in:
-  - Glucose
-  - Blood Pressure
-  - Skin Thickness
-  - Insulin
-  - BMI
-- Median imputation
-- Remove duplicates
-- Handle null values
-- Outlier detection using IQR
+### Admin
+- Full access to user management
+- Create users
+- Edit users
+- Delete users
+- Assign/change roles
+- View all users
 
-### Feature Engineering
-- Standardization
-- Correlation analysis
-- Train / Validation / Test split
-- Optional SMOTE for class balancing
+### Manager *(Optional)*
+- View users
+- Update non-admin users
+- Limited admin controls
 
----
-
-#  Exploratory Data Analysis
-
-Visualizations included:
-
-- Histograms
-- Correlation heatmap
-- Box plots
-- Class distribution chart
-- Feature importance graphs
+### User
+- View own profile
+- Update own profile
+- Cannot access other users
+- Cannot change role
 
 ---
 
-#  Machine Learning Models
+# Authentication
 
-Models trained and compared:
+### Login Fields
+- Email / Username
+- Password
 
-- Logistic Regression
-- Decision Tree
-- Random Forest
-- Support Vector Machine
-- K-Nearest Neighbors
-- Gradient Boosting
-- XGBoost *(optional)*
+### Security
+- Password hashing using bcrypt
+- JWT access token
+- Protected routes
+- Secure environment variables
 
-### Hyperparameter Tuning
-- GridSearchCV
-- RandomizedSearchCV
-
-### Evaluation Metrics
-- Accuracy
-- Precision
-- Recall
-- F1 Score
-- ROC-AUC
-- Confusion Matrix
-
-### Priority
-Focus is on:
-
- Minimizing false negatives  
- Maximizing recall  
- Improving ROC-AUC
+### Optional
+- Refresh token support
 
 ---
 
-#  Backend API
+# Authorization (RBAC)
 
-Built using **FastAPI / Flask**
+### Admin Permissions
+- Create users
+- Update users
+- Delete users
+- Change user roles
+
+### Manager Permissions
+- View users
+- Update non-admin users
+
+### User Permissions
+- View own profile
+- Update own profile
+
+### Unauthorized Access
+Returns:
+
+- **401 → Unauthorized**
+- **403 → Forbidden**
+
+---
+
+# User Management Features
+
+### Admin Capabilities
+- Paginated user list
+- Search users
+- Filter by role
+- Filter by status
+- Create new user
+- Edit user
+- Deactivate user
+- View user details
+
+### User Capabilities
+- View own profile
+- Update name
+- Update password
+
+---
+
+# Audit Tracking
+
+Track:
+
+- createdAt
+- updatedAt
+- createdBy
+- updatedBy
+
+### Example
+Show:
+
+- Who created the user
+- Last updated by
+- Date and time
+
+---
+
+# Backend API
+
+Built using **Node.js + Express.js**
 
 ## Endpoints
 
-### POST `/train-model`
-Train and save the model
-
-### POST `/predict`
-Predict diabetes
-
-### GET `/metrics`
-Fetch model metrics
-
-### GET `/history`
-Fetch prediction history
-
-### GET `/model-info`
-Model details
-
 ### POST `/register`
-Register new user
+Register user
 
 ### POST `/login`
-User authentication
+User login
+
+### GET `/users`
+Get all users
+
+### GET `/users/:id`
+Get user details
+
+### POST `/users`
+Create user
+
+### PUT `/users/:id`
+Update user
+
+### DELETE `/users/:id`
+Delete / deactivate user
+
+### GET `/profile`
+Current user profile
 
 ---
 
-## Example Prediction Response
+## Example Login Response
 
 ```json
 {
-  "prediction": "Diabetic",
-  "probability": "87%",
-  "risk_level": "High"
+  "token": "jwt_token_here",
+  "user": {
+    "name": "Admin User",
+    "email": "admin@example.com",
+    "role": "Admin"
+  }
 }
 ```
 
 ---
 
-#  Frontend Pages
+# Frontend Pages
 
 - Login
-- Register
 - Dashboard
-- Prediction Form
-- Model Metrics
-- Prediction History
-- Admin Panel
-
-### Prediction Form Fields
-
-- Pregnancies
-- Glucose
-- Blood Pressure
-- Skin Thickness
-- Insulin
-- BMI
-- DPF
-- Age
+- User List
+- User Details
+- Profile Page
 
 ---
 
-#  Dashboard Features
+# Dashboard Features
 
-- Accuracy cards
-- Charts
-- Risk trends
-- Recent predictions
-- Form validation
+- Role-based navigation
+- Search bar
+- Filters
+- User cards / table
+- Profile updates
 - Loading indicators
 - Error handling
+- Protected routes
 
 ---
 
-#  Database Schema
+# Database Schema
 
 ## Users
 
 | Field | Type |
 |------|------|
-| id | Integer |
+| _id | ObjectId |
 | name | String |
 | email | String |
 | password | String |
+| role | String |
+| status | String |
+| createdAt | DateTime |
+| updatedAt | DateTime |
+| createdBy | ObjectId |
+| updatedBy | ObjectId |
 
 ---
 
-## Predictions
-
-| Field | Type |
-|------|------|
-| id | Integer |
-| user_id | Integer |
-| input fields | JSON |
-| prediction | String |
-| probability | String |
-| created_at | DateTime |
-
----
-
-## Model Logs
-
-| Field | Type |
-|------|------|
-| id | Integer |
-| version | String |
-| accuracy | Float |
-| recall | Float |
-| created_at | DateTime |
-
----
-
-#  Project Structure
+# Project Structure
 
 ```bash
-diabetes_prediction_project/
+user_management_system/
 │
 ├── backend/
-│   ├── app.py
-│   ├── routes/
-│   ├── auth/
+│   ├── server.js
+│   ├── config/
+│   ├── controllers/
+│   ├── middleware/
 │   ├── models/
-│   └── database/
-│
-├── ml/
-│   ├── train.py
-│   ├── preprocess.py
-│   ├── predict.py
-│   └── saved_model.pkl
+│   ├── routes/
+│   └── utils/
 │
 ├── frontend/
-│   ├── src/components/
-│   ├── pages/
-│   └── charts/
+│   ├── src/
+│   │   ├── components/
+│   │   ├── pages/
+│   │   ├── context/
+│   │   └── services/
 │
-├── dataset/
-│
-├── requirements.txt
+├── .env
+├── package.json
 └── README.md
 ```
 
 ---
 
-#  Dependencies
+# Dependencies
 
 ```txt
-pandas
-numpy
-matplotlib
-seaborn
-scikit-learn
-fastapi
-uvicorn
-joblib
-react / angular / streamlit
+react
+node.js
+express
+mongodb
+mongoose
+jsonwebtoken
+bcrypt
+cors
+dotenv
+axios
+react-router-dom
 ```
 
 ---
 
-#  Run Locally
+# Run Locally
 
 ## Clone repository
 
 ```bash
 git clone <repository-url>
-cd diabetes_prediction_project
+cd user_management_system
 ```
 
-## Install dependencies
+## Install backend dependencies
 
 ```bash
-pip install -r requirements.txt
+cd backend
+npm install
 ```
 
 ## Start backend
 
 ```bash
-uvicorn backend.app:app --reload
+npm run dev
+```
+
+## Install frontend dependencies
+
+```bash
+cd frontend
+npm install
 ```
 
 ## Start frontend
 
 ```bash
-npm install
 npm start
 ```
 
 ---
 
-#  Docker Deployment
+# Docker Deployment
 
-Build image:
+Build image
 
 ```bash
-docker build -t diabetes-prediction .
+docker build -t user-management .
 ```
 
-Run:
+Run
 
 ```bash
-docker run -p 8000:8000 diabetes-prediction
+docker run -p 5000:5000 user-management
 ```
 
 ---
 
-#  Deployment Platforms
+# Deployment Platforms
 
 You can deploy on:
 
 - Render
 - Railway
 - Vercel
+- Netlify
 - Docker
 - Localhost
 
 ---
 
-#  Final Output
+# Final Output
 
 Example:
 
 ```txt
-Prediction: Diabetic
-Probability: 87%
-Risk Level: High
+Admin Dashboard
+Users: 24
+Role: Admin
+
+Search users
+Create user
+Edit user
+Delete user
 ```
 
 ---
 
-#  Project Goal
+# Project Goal
 
-The goal of this project is to provide an accurate and user-friendly diabetes prediction system that helps identify diabetes risk early using machine learning and healthcare analytics.
+The goal of this project is to provide a secure and scalable user management system with authentication and role-based access control.
 
 It combines:
 
-- Data Science
-- Machine Learning
-- Backend APIs
-- Frontend Dashboard
-- Database Management
+- MERN Stack Development
+- Authentication
+- Authorization
+- API Security
+- User Management
+- Dashboard UI
 - Deployment
 
-into one complete production-ready healthcare analytics platform.
+into one complete production-ready web application.
 
 ---
 
-#  Author
+# Author
 
 **Ridhima Pandey**
 ````
 
-This is ready for GitHub as `README.md`.
