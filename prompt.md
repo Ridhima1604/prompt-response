@@ -1,318 +1,357 @@
-# Prompt – Diabetes Prediction System
+# Prompt – User Management System
 
-## Context and Role
+# Context and Role
 
-As a Machine Learning Engineer and Full Stack Developer with a focus on healthcare analytics, your task is to build a complete Diabetes Prediction System using the Pima Indians Diabetes Dataset.
+As a Senior Full-Stack MERN Developer and Software Architect, you are responsible for designing and developing a production-ready User Management System using the MERN stack. The application must support secure authentication, role-based authorization (RBAC), user lifecycle management, audit tracking, and scalable deployment practices.
 
-The project should cover the full workflow—from training the machine learning model to building the backend and frontend. It must include a machine learning pipeline, REST API backend, responsive dashboard UI, database integration, user authentication, prediction history, visual analytics, and deployment setup.
-
-The aim is to create a production-ready healthcare platform that can predict whether a patient may have diabetes based on medical details. The system should also explain prediction results clearly, save patient prediction records, and provide an easy-to-use interface for doctors, students, and healthcare staff.
+Your goal is to build a clean, maintainable, secure, and deployment-ready full-stack web application that demonstrates strong backend architecture, frontend integration, API security, and real-world engineering practices.
 
 ---
 
-## Objective
+# Objective
 
-Build a complete end-to-end Diabetes Prediction System that can:
+Create a complete end-to-end MERN Stack application that:
 
-- Uses the Pima Indians Diabetes Dataset for prediction
-- Cleans and preprocesses patient health data
-- Performs EDA and feature visualization
-- Trains and compares multiple supervised machine learning models
-- Selects and saves the best-performing model
-- Exposes predictions through backend APIs
-- Builds frontend forms and dashboards
-- Stores users and prediction history securely
-- Displays analytics and risk trends
-- Handles validations and errors gracefully
-- Supports deployment locally and on cloud platforms
+- Create a comprehensive end to end MERN Stack app that
+- Supports Role Based Access Control (RBAC)
+- Helps users with different access levels / permissions
+- Separate user and admin capabilities
+- Provides scalable backend architecture and reusable frontend components
+- Provides secure REST APIs
+- Deploys frontend and backend publicly
+- Follows clean coding standards and production-level practices
 
 ---
 
-## Dataset Requirements
+# Technology Stack
 
-### Dataset
+## Frontend
 
-Use the Pima Indians Diabetes Dataset
+- React.js
+- React Hooks
+- Context API
+- React Router
+- Axios
+- Tailwind CSS
 
-### Input Features
+## Backend
 
-- Pregnancies
-- Glucose
-- Blood Pressure
-- Skin Thickness
-- Insulin
-- BMI
-- Diabetes Pedigree Function
-- Age
+- Node.js
+- Express.js
 
-### Outcome
+## Database
 
-- `0 = Non-Diabetic`
-- `1 = Diabetic`
+- MongoDB
 
----
+## Authentication
 
-## Data Processing Requirements
-
-### Data Cleaning
-
-Perform preprocessing before model training.
-
-### Tasks
-
-- Replace invalid zero values in:
-  - Glucose
-  - Blood Pressure
-  - Skin Thickness
-  - Insulin
-  - BMI
-- Handle missing/null values
-- Remove duplicate records
-- Detect and handle outliers
-
-### Data Processing Techniques
-
-Apply the following techniques:
-
-#### Missing Value Handling
-
-- Median imputation
-- Null value detection
-
-#### Outlier Detection
-
-- Interquartile Range (IQR)
-- Box plot analysis
-
-#### Feature Scaling
-
-- Standardization using StandardScaler
-- Optional normalization using MinMaxScaler
-
-#### Data Splitting
-
-- Train / validation / test split
-
-#### Feature Relationship Analysis
-
-- Correlation matrix
-- Heatmap analysis
-
-#### Class Imbalance Handling (Optional)
-
-- SMOTE
-
-#### Data Formatting
-
-- Ensure numerical consistency
-- Convert data into model-ready format
+- JWT Authentication
+- Access Token
+- Refresh Token (optional but preferred)
+- bcrypt password hashing
 
 ---
 
-## Exploratory Data Analysis
+# Authentication Requirements
+
+Implement secure authentication with:
+
+- User registration (optional)
+- User login using:
+  - Email or username
+  - Password
+- Secure password hashing using bcrypt
+- Protected routes
+- Session persistence
+- Refresh token mechanism (preferred)
+
+Ensure:
+
+- Expired token handling
+- Secure cookie handling if using cookies
+- Environment-based secret management
+- Proper authentication error handling
+
+---
+
+# Authorization (RBAC)
+
+Implement backend route protection using role-based middleware.
+
+## Examples
+
+### Admin Can
+
+- Create users
+- Delete users
+- Change roles
+- View all users
+- Update all users
+
+### Manager Can
+
+- View users
+- Update non-admin users
+
+### User Can
+
+- Access only own profile
+- Update own profile
+
+Unauthorized access must return:
+
+- 401 Unauthorized
+- 403 Forbidden
+
+---
+
+# User Management Features
+
+## Admin Features
+
+- Paginated user listing
+- Search users
+- Filter by:
+  - Role
+  - Status
+- Create users
+- Edit users
+- Soft delete/deactivate users
+- View single user details
+- Auto-generated password support (optional)
+
+## User Features
+
+- View profile
+- Update profile
+- Update password
+- Restrict role editing
+- Restrict access to other profiles
+
+---
+
+# Audit & Activity Tracking
+
+Track the following fields:
+
+- createdAt
+- updatedAt
+- createdBy
+- updatedBy
+
+Provide audit visibility in:
+
+- User detail page
+- Admin dashboard
 
 Include:
 
-- Histograms
-- Heatmap
-- Box plots
-- Class balance chart
-- Feature importance graph
+- Last updated user
+- Creation timestamps
+- Update timestamps
 
 ---
 
-## Machine Learning Requirements
+# Backend Architecture Requirements
 
-### Train and Compare Models
+Design a scalable backend structure with:
+
+- Controllers
+- Routes
+- Middleware
+- Services
+- Models
+- Utilities
+- Validators
+- Config management
 
 Implement:
 
-- Logistic Regression
-- Decision Tree
-- Random Forest
-- Support Vector Machine
-- K-Nearest Neighbors
-- Gradient Boosting
+- Centralized error handling
+- Async error wrappers
+- Request validation
+- Secure environment configuration
+- Structured API responses
+- Logging system
+- Input sanitization
+- MongoDB query protection
 
-### Hyperparameter Tuning
-
-Use:
-
-- GridSearchCV
-- RandomizedSearchCV
-
-### Evaluation Metrics
-
-Measure:
-
-- Accuracy
-- Precision
-- Recall
-- F1 Score
-- ROC-AUC
-- Confusion Matrix
-
----
-
-## Backend Requirements (FastAPI / Flask)
-
-Use:
-
-- Python
-- FastAPI
-- REST API
-
-### Authentication
-
-Implement:
-
-- JWT token authentication
-
----
-
-## Frontend Requirements
-
-Use:
-
-- HTML
-- Tailwind CSS
-- React Router DOM
-- Chart.js
-- Axios
-
----
-
-## Database Requirements
-
-Use:
-
-- PostgreSQL
-- MongoDB
-
----
-
-## Error Handling
-
-The system must handle errors gracefully across machine learning, backend, frontend, and database.
-
-### Dataset Errors
-
-Handle:
-
-- Missing dataset file
-- Invalid CSV format
-- Empty dataset
-- Duplicate records
-- Missing required columns
-
-### Model Training Errors
-
-Handle:
-
-- Training failure
-- Invalid preprocessing output
-- Hyperparameter tuning failure
-- Model save/load failure
-
-### Backend API Errors
-
-Handle:
-
-- Invalid request payload
-- Missing required fields
-- Invalid feature values
-- Authentication failure
-- Token expiration
-- Internal server errors
-
-Return structured JSON:
-
-```json
-{
-  "status": "error",
-  "message": "Invalid glucose value"
-}
-```
-
-### Frontend Errors
-
-Handle:
-
-- Empty form submission
-- Invalid numeric input
-- Failed API request
-- Network/server unavailable
-- Loading state issues
-
-Display:
-
-- Validation errors
-- Error alerts
-- Success confirmation
-
-### Database Errors
-
-Handle:
-
-- Database connection failure
-- Insert/update failure
-- Duplicate user registration
-- Prediction history retrieval failure
-
----
-
-## Folder Structure
+## Recommended Folder Structure
 
 ```bash
-diabetes_prediction_project/
-│
-├── backend/
-│   ├── app.py
+backend/
+│── src/
+│   ├── controllers/
 │   ├── routes/
-│   ├── auth/
+│   ├── middleware/
 │   ├── models/
-│   ├── database/
-│
-├── ml/
-│   ├── train.py
-│   ├── preprocess.py
-│   ├── predict.py
-│   ├── saved_model.pkl
-│
-├── frontend/
-│   ├── src/components/
-│   ├── pages/
-│   ├── charts/
-│
-├── dataset/
-├── requirements.txt
-├── README.md
+│   ├── services/
+│   ├── validators/
+│   ├── utils/
+│   ├── config/
+│   └── app.js
 ```
 
 ---
 
-## Performance and Scalability
+# Frontend Requirements
 
-Ensure the system:
+Build a clean and responsive frontend with:
 
-- Loads quickly
-- Handles multiple requests efficiently
-- Supports future scaling
-- Optimizes model loading
-- Maintains responsive UI performance
+## Pages
+
+- Login
+- Dashboard
+- User List
+- User Details
+- My Profile
+- Unauthorized Page
+
+## Features
+
+- Role-based navigation
+- Protected routes
+- Persist authentication state
+- Dynamic UI rendering based on roles
+- Form validation
+- Loading states
+- Error handling
+- Responsive design
+
+## UI/UX
+
+- Clean modern interface
+- Reusable components
+- Proper navigation flow
+- Mobile responsiveness
 
 ---
 
-## Expected Output
+# API Design & Security Requirements
 
-The final system should deliver:
+Ensure:
 
-- Cleaned dataset
-- EDA visualizations
-- Multiple trained models
-- Best model saved
-- REST API backend
-- Frontend dashboard
-- Prediction history
-- Authentication
-- Analytics
+- RESTful API architecture
+- Proper HTTP methods
+- Backend validation
+- Secure JWT handling
+- Hidden sensitive data
+- Password hashing
+- Secure headers
+- Environment variable usage
+
+Protect against:
+
+- Injection attacks
+- Unauthorized access
+- Token misuse
+- Sensitive data exposure
+
+Implement:
+
+- Rate limiting
+- Helmet middleware
+- CORS configuration
+- Request logging
+
+---
+
+# Database Requirements
+
+Design scalable MongoDB schemas for:
+
+## User Schema
+
+### Fields
+
+- name
+- email
+- password
+- role
+- status
+- createdBy
+- updatedBy
+- timestamps
+
+Include:
+
+- Validation
+- Indexing
+- Secure password exclusion
+- Soft delete support
+
+---
+
+# Data Processing Requirements
+
+Validate:
+
+- Email format
+- Required fields
+- Password strength
+- MongoDB ObjectIds
+
+Secure data handling:
+
+- Trim and normalize inputs
+- Hash passwords using bcrypt
+- Hide sensitive data from API responses
+
+Ensure all APIs return structured JSON responses.
+
+---
+
+# Performance & Scalability
+
+Ensure:
+
+- Optimized MongoDB queries
+- Pagination support
+- Efficient API responses
+- Reusable architecture
+- Scalable RBAC system
+- Low response latency
+- Efficient frontend rendering
+- Maintainable codebase
+
+Support:
+
+- Future role additions
+- Feature extensibility
+- Horizontal scaling
+
+---
+
+# Error Handling & Validation
+
+Implement:
+
+- Centralized error middleware
+- Request validation
+- Graceful API failures
+- Invalid JWT handling
+- Invalid input handling
+- Meaningful error messages
+- Authentication failure handling
+
+Prevent:
+
+- Data leakage
+- Invalid database operations
+- Unauthorized updates
+
+---
+
+# Expected Output
+
+The final solution should demonstrate:
+
+- Production-ready MERN architecture
+- Secure authentication system
+- Scalable RBAC implementation
+- Clean frontend UI/UX
+- Secure REST APIs
+- Maintainable backend structure
+- Proper deployment practices
+- Real-world engineering standards
+- Strong code quality and scalability principles
