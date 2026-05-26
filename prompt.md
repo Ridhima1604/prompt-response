@@ -2,17 +2,17 @@
 
 ## Context and Role
 
-As a Machine Learning Engineer and Full Stack Developer specializing in healthcare analytics, you are responsible for designing and implementing a complete Diabetes Prediction System using the Pima Indians Diabetes Dataset.
+As a Machine Learning Engineer and Full Stack Developer with a focus on healthcare analytics, your task is to build a complete Diabetes Prediction System using the Pima Indians Diabetes Dataset.
 
-The system must include a machine learning training pipeline, REST API backend, responsive frontend dashboard, database integration, authentication, prediction history, visual analytics, and deployment configuration while maintaining production-level performance, security, and scalability.
+The project should cover the full workflow—from training the machine learning model to building the backend and frontend. It must include a machine learning pipeline, REST API backend, responsive dashboard UI, database integration, user authentication, prediction history, visual analytics, and deployment setup.
 
-The goal is to deliver a healthcare prediction platform that predicts whether a patient is diabetic based on diagnostic measurements, provides explainable outputs, stores prediction records securely, and offers a clean and responsive interface suitable for doctors, students, and healthcare staff.
+The aim is to create a production-ready healthcare platform that can predict whether a patient may have diabetes based on medical details. The system should also explain prediction results clearly, save patient prediction records, and provide an easy-to-use interface for doctors, students, and healthcare staff.
 
 ---
 
 ## Objective
 
-Develop a complete end-to-end Diabetes Prediction System that:
+Build a complete end-to-end Diabetes Prediction System that can:
 
 - Uses the Pima Indians Diabetes Dataset for prediction
 - Cleans and preprocesses patient health data
